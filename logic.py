@@ -13,6 +13,8 @@ class Pokemon:
         self.abilities = self.get_abilities()
         self.level = 1
         self.experience = 0
+        self.hp = randint(50, 100) 
+        self.power = randint(10, 30)
         self.is_rare = self.check_if_rare()
         Pokemon.pokemons[pokemon_trainer] = self
         Pokemon.last_fed[pokemon_trainer] = 0
@@ -66,12 +68,31 @@ class Pokemon:
             self.level += 1
             return f"Уровень повышен! Теперь уровень: {self.level}"
         return ""
+    
+    def attack(self, enemy):
+        if isinstance(enemy, Wizard): # Проверка на то, что enemy является типом данных Wizard (является экземпляром класса Волшебник)
+            shield_chance = randint(1,5)
+            if shield_chance == 1:
+                return "Покемон-волшебник применил щит в сражении"
+            
+        if enemy.hp > self.power:
+            enemy.hp -= self.power
+            return f"Сражение {self.name} с {enemy.name}. У {enemy.name} осталось {enemy.hp} HP."
+        else:
+            enemy.hp = 0
+            return f"Победа {self.name} над {enemy.name}!"
+    
+    def heal(self, amount):
+        self.hp += amount
+        return f"{self.name} восстановил {amount} HP. Текущее здоровье: {self.hp}."
 
     def info(self):
         rarity = "Редкий" if self.is_rare else "Обычный"
         return (
             f"Имя: {self.name}\n"
             f"Тип: {'Редкий' if self.is_rare else 'Обычный'}\n"
+            f"Здоровье: {self.hp}\n"
+            f"Сила: {self.power}\n"
             f"Способности: {self.abilities}"
         )
     
@@ -84,3 +105,37 @@ class Pokemon:
             f"Опыт: {self.experience}\n"
             f"Способности: {self.abilities}"
         )
+    
+class Fighter(Pokemon):
+    def __init__(self, pokemon_trainer):
+        super().__init__(pokemon_trainer)
+        self.power += randint(5, 15)  # Увеличиваем силу бойцу
+
+    def info(self):
+        return "У тебя покемон-боец!\n" + super().info()
+    
+    def attack(self, enemy):
+        super_boost = randint(5,15)
+        self.power += super_boost
+        result = super().attack(enemy)
+        self.power -= super_boost
+        return result + f"\n{self.name} применил супер-атаку силой:{super_boost}"
+    
+    def gain_bonus(self):
+        bonus = randint(5, 10)
+        self.power += bonus
+        return f"{self.name} получил бонус к силе: +{bonus}. Текущая сила: {self.power}."
+class Wizard(Pokemon):
+    def __init__(self, pokemon_trainer):
+        super().__init__(pokemon_trainer)
+        self.hp += randint(20, 30)  # Увеличиваем здоровье волшебнику
+
+    def info(self):
+        return "У тебя покемон-волшебник!\n" + super().info()
+
+    def gain_bonus(self):
+        bonus = randint(10, 20)
+        self.hp += bonus
+        return f"{self.name} получил бонус к здоровью: +{bonus}. Текущее здоровье: {self.hp}."
+        
+        
